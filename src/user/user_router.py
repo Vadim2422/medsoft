@@ -1,0 +1,72 @@
+from typing import Annotated
+
+from fastapi import APIRouter
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.auth.auth import get_id_from_token, oauth2_scheme
+from src.db import get_async_session
+from src.user.user_model import User
+from src.user.user_schemas import UserCreate, UserOut, UserAuth, UserUpdate
+from src.user.user_service import UserService
+from src.utils.sms_service import send_verification_sms, confirm_sms_code
+
+router = APIRouter(tags=["User"])
+
+SessionDep = Depends(get_async_session)
+
+
+@router.post("/user", status_code=200, response_model=UserOut)
+async def create_user(user: UserCreate, session: AsyncSession = SessionDep):
+    user_service = UserService(session)
+    user_db = User(**user.dict())
+    await user_service.create(user_db)
+    return UserOut(**user_db.__dict__)
+
+
+@router.post("/auth", status_code=200)
+async def auth(user_auth: UserAuth, session: AsyncSession = SessionDep):
+    user_service = UserService(session)
+    user_db, access, refresh = await user_service.auth(user_auth)
+    return {
+        "access_token": access.token,
+        "refresh_token": refresh.token,
+        "user": UserOut(**user_db.__dict__)
+    }
+
+
+@router.get("/send_confirm_sms", status_code=200)
+async def send_sms(number: int, session: AsyncSession = SessionDep):
+    await send_verification_sms(number, session)
+    return "Ok"
+
+
+@router.get("/confirm_code", status_code=200)
+async def send_sms(number: int, code: int, session: AsyncSession = SessionDep):
+    await confirm_sms_code(number, code, session)
+    return "Ok"
+
+
+@router.get("/user")
+async def get_user(user_id=Depends(get_id_from_token), session: AsyncSession = SessionDep):
+    user_service = UserService(session)
+
+    return UserOut(**(await user_service.get_user_by_id(user_id)).__dict__)
+
+
+@router.get("/refresh")
+async def refresh(token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSession = SessionDep):
+    user_service = UserService(session)
+    access, refresh = await user_service.refresh_tokens(token)
+
+    return {
+        "access_token": access.token,
+        "refresh_token": refresh.token
+    }
+
+
+@router.put("/user", response_model=UserOut)
+async def update_user(user_update: UserUpdate, user_id=2,
+                      session: AsyncSession = SessionDep):
+    user_service = UserService(session)
+    return UserOut(**user_service.update_user(user_id, user_update).__dict__)
