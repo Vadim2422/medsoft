@@ -2,6 +2,8 @@ import datetime
 
 from pydantic import BaseModel
 
+from src.auth.auth import Token
+
 
 class UserBase(BaseModel):
     """ Формирует тело ответа с деталями пользователя """
@@ -22,6 +24,8 @@ class UserAuth(BaseModel):
 
 class UserOut(UserBase):
     registered_at: datetime.datetime
+    access_token: Token
+    refresh_token: Token
     id: int
 
 

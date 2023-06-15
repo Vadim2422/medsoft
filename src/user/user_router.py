@@ -20,19 +20,13 @@ SessionDep = Depends(get_async_session)
 async def create_user(user: UserCreate, session: AsyncSession = SessionDep):
     user_service = UserService(session)
     user_db = User(**user.dict())
-    await user_service.create(user_db)
-    return UserOut(**user_db.__dict__)
+    return await user_service.create(user_db)
 
 
-@router.post("/auth", status_code=200)
+@router.post("/auth", status_code=200, response_model=UserOut)
 async def auth(user_auth: UserAuth, session: AsyncSession = SessionDep):
     user_service = UserService(session)
-    user_db, access, refresh = await user_service.auth(user_auth)
-    return {
-        "access_token": access.token,
-        "refresh_token": refresh.token,
-        "user": UserOut(**user_db.__dict__)
-    }
+    return await user_service.auth(user_auth)
 
 
 @router.get("/send_confirm_sms", status_code=200)

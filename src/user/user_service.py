@@ -8,7 +8,7 @@ from starlette import status
 from src.auth.auth import get_password_hash, verify_password, create_access_token, create_refresh_token, \
     get_id_from_token
 from src.user.user_model import User, RefreshToken
-from src.user.user_schemas import UserAuth, UserUpdate
+from src.user.user_schemas import UserAuth, UserUpdate, UserOut
 from src.config import Config
 
 data = Config()
@@ -22,8 +22,8 @@ class UserService:
         await self.check_phone(user.phone_number)
         user.password = get_password_hash(user.password)
         self.session.add(user)
-
-        await self.session.commit()
+        # await self.session.commit()
+        return await self.create_tokens(user)
 
     async def get_user_by_phone(self, phone: int):
         stmt = select(User).filter_by(phone_number=phone)
@@ -49,14 +49,17 @@ class UserService:
             raise HTTPException(status_code=400, detail="Incorrect email or password")
         return await self.create_tokens(user_db)
 
-    async def create_tokens(self, user_db: User):
+    async def create_tokens(self, user_db: User) -> UserOut:
         refresh_token = create_refresh_token(user_db)
         token = RefreshToken(token=refresh_token.token)
         token.exp = refresh_token.exp
         token.user = user_db
         self.session.add(token)
         await self.session.commit()
-        return user_db, create_access_token(user_db), refresh_token
+        user = UserOut(access_token=create_access_token(user_db), refresh_token=refresh_token, **user_db.__dict__)
+        user.access_token = create_access_token(user_db)
+        user.refresh_token = refresh_token
+        return user
 
     async def refresh_tokens(self, token):
         stmt = select(RefreshToken).where(RefreshToken.token == token)

@@ -10,7 +10,6 @@ from starlette import status
 from src.config import Config
 from ..user.user_model import User
 
-
 data = Config()
 
 SECRET_KEY = data.secret_key
@@ -19,10 +18,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = data.access_token_expire_minutes
 REFRESH_TOKEN_EXPIRE_MINUTES = data.access_token_expire_minutes
 
 
-class Token:
-    def __init__(self, token: str, exp: datetime):
-        self.token = token
-        self.exp = exp
+class Token(BaseModel):
+    token: str
+    exp: datetime
+
 
 
 class TokenData(BaseModel):
