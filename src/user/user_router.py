@@ -5,25 +5,26 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.auth import get_id_from_token, oauth2_scheme
-from src.db import get_async_session
+from src.database import get_async_session
+from src.main import SessionDep
 from src.user.user_model import User
-from src.user.user_schemas import UserCreate, UserOut, UserAuth, UserUpdate
+from src.user.user_role import UserRole
+from src.user.user_schemas import UserCreate, UserOut, UserAuth, UserUpdate, UserCreateOut
 from src.user.user_service import UserService
 from src.utils.sms_service import send_verification_sms, confirm_sms_code
 
 router = APIRouter(tags=["User"])
 
-SessionDep = Depends(get_async_session)
 
-
-@router.post("/user", status_code=200, response_model=UserOut)
+@router.post("/user", status_code=200, response_model=UserCreateOut)
 async def create_user(user: UserCreate, session: AsyncSession = SessionDep):
     user_service = UserService(session)
     user_db = User(**user.dict())
+    user_db.role = UserRole.PATIENT
     return await user_service.create(user_db)
 
 
-@router.post("/auth", status_code=200, response_model=UserOut)
+@router.post("/auth", status_code=200, response_model=UserCreateOut)
 async def auth(user_auth: UserAuth, session: AsyncSession = SessionDep):
     user_service = UserService(session)
     return await user_service.auth(user_auth)
@@ -51,7 +52,9 @@ async def get_user(user_id=Depends(get_id_from_token), session: AsyncSession = S
 @router.get("/refresh")
 async def refresh(token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSession = SessionDep):
     user_service = UserService(session)
-    access, refresh = await user_service.refresh_tokens(token)
+    user = await user_service.refresh_tokens(token)
+    access = user.access_token
+    refresh = user.refresh_token
 
     return {
         "access_token": access.token,

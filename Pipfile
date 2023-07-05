@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 fastapi = {extras = ["all"], version = "*"}
+aiohttp = "*"
 sqlalchemy = "*"
 psycopg2-binary = "*"
 asyncpg = "*"
@@ -12,7 +13,8 @@ alembic = "*"
 python-dotenv = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
-aiohttp = "*"
+pytest = "*"
+pytest-asyncio = "*"
 
 [dev-packages]
 

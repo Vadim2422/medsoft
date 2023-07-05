@@ -7,15 +7,14 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from starlette import status
-from src.config import Config
+from src.config import *
 from ..user.user_model import User
+from ..user.user_role import UserRole
 
-data = Config()
-
-SECRET_KEY = data.secret_key
-ALGORITHM = data.algorithm
-ACCESS_TOKEN_EXPIRE_MINUTES = data.access_token_expire_minutes
-REFRESH_TOKEN_EXPIRE_MINUTES = data.access_token_expire_minutes
+SECRET_KEY = secret_key
+ALGORITHM = algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = access_token_expire_minutes
+REFRESH_TOKEN_EXPIRE_MINUTES = refresh_token_expire_days
 
 
 class Token(BaseModel):
@@ -41,7 +40,6 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-# todo ref create token, write base create token and access, refresh
 def create_token(user: User, type_token: str, minutes=None, days=None):
     exp = datetime.utcnow()
     if minutes:
@@ -79,3 +77,5 @@ async def get_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]):
     except JWTError:
         raise credentials_exception
     return id
+
+

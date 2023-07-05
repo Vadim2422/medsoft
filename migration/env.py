@@ -1,24 +1,26 @@
 from logging.config import fileConfig
 # from src.db import Base
 from src.user.user_model import *
+from src.user.user_role import UserRole
+from src.doctor.doctor_model import *
+from src.patient.patient_model import *
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from src.config import Config
+from src.config import *
 from alembic import context
 
 # sys.path.append(os.path.join(sys.path[0], 'src'))
 
-data = Config()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 section = config.config_ini_section
-config.set_section_option(section, "DB_P_USER", data.p_user)
-config.set_section_option(section, "DB_P_PASSWORD", data.p_password)
-config.set_section_option(section, "DB_P_HOST", data.p_host)
-config.set_section_option(section, "DB_P_PORT", data.p_port)
-config.set_section_option(section, "DB_P_NAME", data.p_name)
+config.set_section_option(section, "DB_P_USER", p_user)
+config.set_section_option(section, "DB_P_PASSWORD", p_password)
+config.set_section_option(section, "DB_P_HOST", p_host)
+config.set_section_option(section, "DB_P_PORT", p_port)
+config.set_section_option(section, "DB_P_NAME", p_name)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

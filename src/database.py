@@ -4,16 +4,16 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
 
-from src.config import Config
+from src.config import *
 
-data = Config()
+
 
 
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
 
-DATABASE_URL = f"postgresql+asyncpg://{data.p_user}:{data.p_password}@{data.p_host}:{data.p_port}/{data.p_name}"
+DATABASE_URL = f"postgresql+asyncpg://{p_user}:{p_password}@{p_host}:{p_port}/{p_name}"
 engine = create_async_engine(DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 

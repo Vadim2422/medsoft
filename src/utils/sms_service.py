@@ -6,10 +6,9 @@ from fastapi import HTTPException
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.config import Config
+from src.config import *
 from src.user.user_model import VerificationCode
 
-data = Config()
 
 
 async def get_code_by_phone(number, session):
@@ -20,7 +19,7 @@ async def get_code_by_phone(number, session):
 async def send_sms(number: int, text: str):
     async with aiohttp.ClientSession() as session:
         async with session.get(
-                f"https://{data.sms_email}:{data.sms_key}@gate.smsaero.ru/v2/sms/send?number={number}&text={text}&sign=SMS Aero") as resp:
+                f"https://{sms_email}:{sms_key}@gate.smsaero.ru/v2/sms/send?number={number}&text={text}&sign=SMS Aero") as resp:
             if not (await resp.json()).get('success'):
                 raise HTTPException(400)
 

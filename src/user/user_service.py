@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import HTTPException, Depends
 from sqlalchemy import select
@@ -7,11 +7,10 @@ from starlette import status
 
 from src.auth.auth import get_password_hash, verify_password, create_access_token, create_refresh_token, \
     get_id_from_token
+from src.patient.patient_model import Patient
 from src.user.user_model import User, RefreshToken
-from src.user.user_schemas import UserAuth, UserUpdate, UserOut
-from src.config import Config
-
-data = Config()
+from src.user.user_role import UserRole
+from src.user.user_schemas import UserAuth, UserUpdate, UserOut, UserCreateOut
 
 
 class UserService:
@@ -21,8 +20,10 @@ class UserService:
     async def create(self, user: User):
         await self.check_phone(user.phone_number)
         user.password = get_password_hash(user.password)
+        patient = Patient(appointments=[])
+        user.patient = patient
         self.session.add(user)
-        # await self.session.commit()
+        await self.session.commit()
         return await self.create_tokens(user)
 
     async def get_user_by_phone(self, phone: int):
@@ -41,7 +42,7 @@ class UserService:
     async def check_phone(self, phone: int):
         if await self.get_user_by_phone(phone):
             raise HTTPException(status_code=400,
-                                detail={"phone": f"User with phone number +{phone} already exist!"})
+                                detail={"phone": f"User with phone number {phone} already exist!"})
 
     async def auth(self, user_auth: UserAuth):
         user_db: User = await self.get_user_by_phone(user_auth.phone)
@@ -49,14 +50,14 @@ class UserService:
             raise HTTPException(status_code=400, detail="Incorrect email or password")
         return await self.create_tokens(user_db)
 
-    async def create_tokens(self, user_db: User) -> UserOut:
+    async def create_tokens(self, user_db: User) -> UserCreateOut:
         refresh_token = create_refresh_token(user_db)
         token = RefreshToken(token=refresh_token.token)
         token.exp = refresh_token.exp
         token.user = user_db
         self.session.add(token)
         await self.session.commit()
-        user = UserOut(access_token=create_access_token(user_db), refresh_token=refresh_token, **user_db.__dict__)
+        user = UserCreateOut(access_token=create_access_token(user_db), refresh_token=refresh_token, **user_db.__dict__)
         user.access_token = create_access_token(user_db)
         user.refresh_token = refresh_token
         return user
@@ -83,4 +84,15 @@ class UserService:
                 setattr(user_db, field, value)
         await self.session.commit()
         return user_db
+
+
+
+
+
+    async def check_user_role(self, atl):
+        print(atl)
+        # for role in user_roles:
+        #     if role in allowed_roles:
+        #         return True
+        # raise HTTPException(status_code=403, detail="Access denied")
 
