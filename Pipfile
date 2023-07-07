@@ -15,6 +15,7 @@ python-jose = {extras = ["cryptography"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 pytest = "*"
 pytest-asyncio = "*"
+uvicorn = "*"
 
 [dev-packages]
 

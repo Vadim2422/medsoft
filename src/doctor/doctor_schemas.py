@@ -4,6 +4,7 @@ from typing import List
 from pydantic import BaseModel, validator
 
 from src.doctor.doctor_model import Appointment
+from src.patient.patient_schemas import AppointmentsOut
 
 
 def get_day_of_the_week(day: int):
@@ -46,10 +47,20 @@ class AppointmentBasicOut(BaseModel):
     date: datetime.datetime
 
 
+class AppointmentById(AppointmentBasicOut):
+    info: str
+    fio: str
+    doctor_id: int
+    anamnesis: str | None
+
+class Anamnesis(BaseModel):
+    anamnesis: str
+
+
 
 class DayAppointmentOut(BaseModel):
     date: datetime.date
-    appointments: List[AppointmentBasicOut]
+    appointments: List[AppointmentsOut | AppointmentBasicOut]
     day_of_the_week: str = None
 
     def get_class_with_day_week(self):
@@ -70,7 +81,8 @@ class DoctorOut(DoctorShort):
     #     return cls.get_day_of_the_week(date.date().weekday())
 
 
-class PatientAppointmentOut(BaseModel):
+class PatientOut(BaseModel):
     id: int
-    date: datetime.datetime
+    patient: str
     doctor: str
+

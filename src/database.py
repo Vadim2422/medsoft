@@ -9,6 +9,7 @@ from src.config import *
 
 
 
+
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
@@ -21,6 +22,4 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False, class_=
 async def get_async_session() -> AsyncGenerator:
     async with async_session_maker() as session:
         yield session
-
-DBSession = Annotated[AsyncSession, Depends(get_async_session)]
 

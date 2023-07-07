@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 from sqlalchemy import Column, BigInteger, String, TIMESTAMP, Enum, Integer, ARRAY, Date, ForeignKey, Time
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import relationship
 
 from src.database import Base, async_session_maker

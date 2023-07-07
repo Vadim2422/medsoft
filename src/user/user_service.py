@@ -85,14 +85,3 @@ class UserService:
         await self.session.commit()
         return user_db
 
-
-
-
-
-    async def check_user_role(self, atl):
-        print(atl)
-        # for role in user_roles:
-        #     if role in allowed_roles:
-        #         return True
-        # raise HTTPException(status_code=403, detail="Access denied")
-

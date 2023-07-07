@@ -22,7 +22,6 @@ class Token(BaseModel):
     exp: datetime
 
 
-
 class TokenData(BaseModel):
     username: str | None = None
 
@@ -53,8 +52,8 @@ def create_token(user: User, type_token: str, minutes=None, days=None):
     return encoded_jwt, exp
 
 
-def create_access_token(user: User):
-    token, exp = create_token(user, "access", minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+def create_access_token(user: User, minutes=ACCESS_TOKEN_EXPIRE_MINUTES):
+    token, exp = create_token(user, "access", minutes=minutes)
     return Token(token=token, exp=exp)
 
 
@@ -79,3 +78,14 @@ async def get_id_from_token(token: Annotated[str, Depends(oauth2_scheme)]):
     return id
 
 
+def check_user_role(user: User, checked_role: str):
+    if not user or user.role != checked_role:
+        raise HTTPException(status_code=403)
+
+
+def check_patient(user: User):
+    check_user_role(user, "patient")
+
+
+def check_doctor(user: User):
+    check_user_role(user, "doctor")

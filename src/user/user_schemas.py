@@ -11,8 +11,8 @@ class UserBase(BaseModel):
     name: str
     surname: str
     patronymic: str
-    photo: int | None
-    phone_number: int
+    photo: str | None = None
+    phone_number: str
 
 
 class UserCreate(UserBase):
@@ -20,7 +20,7 @@ class UserCreate(UserBase):
 
 
 class UserAuth(BaseModel):
-    phone: int
+    phone: str
     password: str
 
 
@@ -39,4 +39,4 @@ class UserUpdate(BaseModel):
     name: str = None
     surname: str = None
     patronymic: str = None
-    phone_number: int = None
+    phone_number: str = None

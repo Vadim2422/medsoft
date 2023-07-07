@@ -15,7 +15,7 @@ class User(Base):
     name = Column("name", String(15), nullable=False)
     surname = Column("surname", String(15), nullable=False)
     patronymic = Column("patronymic", String(15))
-    phone_number = Column("phone", BigInteger, nullable=False)
+    phone_number = Column("phone", String(15), nullable=False)
     photo = Column("photo", String(100))
     password = Column("password", String(300), nullable=False)
     role = Column("user_role", Enum(UserRole))

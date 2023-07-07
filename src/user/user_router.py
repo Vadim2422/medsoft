@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.auth import get_id_from_token, oauth2_scheme
 from src.database import get_async_session
-from src.main import SessionDep
+from src.patient.patient_model import Patient
 from src.user.user_model import User
 from src.user.user_role import UserRole
 from src.user.user_schemas import UserCreate, UserOut, UserAuth, UserUpdate, UserCreateOut
@@ -14,6 +14,7 @@ from src.user.user_service import UserService
 from src.utils.sms_service import send_verification_sms, confirm_sms_code
 
 router = APIRouter(tags=["User"])
+SessionDep = Depends(get_async_session)
 
 
 @router.post("/user", status_code=200, response_model=UserCreateOut)
