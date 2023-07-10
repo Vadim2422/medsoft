@@ -14,7 +14,7 @@ class Patient(Base):
     appointments = relationship("Appointment", back_populates="patient", lazy="joined")
     user_id = Column(ForeignKey("users.id"))
     user = relationship("User", back_populates="patient", lazy="joined")
-    health_metrics = relationship("HealthMetrics", back_populates="patient", lazy="dynamic")
+
 
 
 class StateOfHealth(enum.Enum):
@@ -24,9 +24,7 @@ class StateOfHealth(enum.Enum):
     great = "Отличное"
 
 
-class Day(enum.Enum):
-    MORNING = "Утро"
-    EVENING = "Вечер"
+
 
 
 class HealthMetrics(Base):
@@ -39,11 +37,10 @@ class HealthMetrics(Base):
     sugar = Column("sugar", Float)
     state = Column(Enum(StateOfHealth))
     complaints = Column("complaints", String(1000))
-    day = Column("day", Enum(Day), nullable=False)
-    date = Column(Date, default=datetime.now)
+    date = Column(TIMESTAMP, default=datetime.now)
 
-    patient_id = Column(ForeignKey("patients.id"))
-    patient = relationship("Patient", back_populates="health_metrics", lazy="joined")
+    user_id = Column(ForeignKey("users.id"))
+    user = relationship("User", lazy="joined")
 
     def update(self, **kwargs):
         for field, value in kwargs.items():

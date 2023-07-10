@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import BaseModel
 
-from src.patient.patient_model import StateOfHealth, Day
+from src.patient.patient_model import StateOfHealth
 
 
 class PatientPostAppointment(BaseModel):
@@ -27,5 +27,11 @@ class HealthMetricsPost(BaseModel):
     sugar: float | None
     state: StateOfHealth | None
     complaints: str | None
-    day: Day
+
+
+class GetMetrics(BaseModel):
+    user_id: int
+    date: datetime.date
+
+class HealthMetricsOut(HealthMetricsPost):
     date: datetime.datetime | None

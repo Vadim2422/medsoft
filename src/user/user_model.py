@@ -31,9 +31,6 @@ class User(Base):
         return fio
 
 
-# class Docktor(Base):
-
-
 class RefreshToken(Base):
     __tablename__ = "tokens"
     id = Column("id", BigInteger, primary_key=True)

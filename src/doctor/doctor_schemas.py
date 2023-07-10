@@ -51,6 +51,7 @@ class AppointmentById(AppointmentBasicOut):
     info: str
     fio: str
     doctor_id: int
+    user_id: int
     anamnesis: str | None
 
 class Anamnesis(BaseModel):

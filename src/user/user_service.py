@@ -26,7 +26,7 @@ class UserService:
         await self.session.commit()
         return await self.create_tokens(user)
 
-    async def get_user_by_phone(self, phone: int):
+    async def get_user_by_phone(self, phone: str):
         stmt = select(User).filter_by(phone_number=phone)
         user = await self.session.scalar(stmt)
         return user
@@ -39,7 +39,7 @@ class UserService:
                                 detail={"User not found"})
         return user
 
-    async def check_phone(self, phone: int):
+    async def check_phone(self, phone: str):
         if await self.get_user_by_phone(phone):
             raise HTTPException(status_code=400,
                                 detail={"phone": f"User with phone number {phone} already exist!"})
@@ -47,7 +47,7 @@ class UserService:
     async def auth(self, user_auth: UserAuth):
         user_db: User = await self.get_user_by_phone(user_auth.phone)
         if not user_db or not verify_password(user_auth.password, user_db.password):
-            raise HTTPException(status_code=400, detail="Incorrect email or password")
+            raise HTTPException(status_code=403, detail="Incorrect email or password")
         return await self.create_tokens(user_db)
 
     async def create_tokens(self, user_db: User) -> UserCreateOut:

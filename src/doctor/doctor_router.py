@@ -67,6 +67,7 @@ async def get_appointment(appointment_id: int, user_id=Depends(get_id_from_token
         raise HTTPException(status_code=404, detail="")
 
     return AppointmentById(**appointment.__dict__,
+                           user_id=appointment.patient.user.id,
                            doctor_id=doctor.id,
                            fio=appointment.patient.user.get_fio(),
                            info=doctor.info)

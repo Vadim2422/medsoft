@@ -36,7 +36,7 @@ def verify_password(plain_password, hashed_password):
 
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    return pwd_context.hash(str(password))
 
 
 def create_token(user: User, type_token: str, minutes=None, days=None):

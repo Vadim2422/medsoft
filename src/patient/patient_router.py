@@ -11,7 +11,8 @@ from src.database import get_async_session
 from src.doctor.doctor_model import Doctor, Appointment
 from src.doctor.doctor_schemas import DoctorSetAppointment, AppointmentById
 from src.patient.patient_model import Patient, HealthMetrics
-from src.patient.patient_schemas import PatientPostAppointment, AppointmentsOut, HealthMetricsPost
+from src.patient.patient_schemas import PatientPostAppointment, AppointmentsOut, HealthMetricsPost, GetMetrics, \
+    HealthMetricsOut
 from src.user.user_model import User
 from src.user.user_role import UserRole
 from src.user.user_schemas import UserCreate, UserOut, UserAuth, UserUpdate, UserCreateOut
@@ -66,6 +67,7 @@ async def get_appointment(appointment_id: int, user_id=Depends(get_id_from_token
         raise HTTPException(status_code=404, detail="Patient dont have this appointment")
 
     return AppointmentById(**appointment.__dict__,
+                           user_id=appointment.patient.user.id,
                            doctor_id=doctor.id,
                            fio=appointment.patient.user.get_fio(),
                            info=doctor.info)
@@ -76,14 +78,21 @@ async def set_health(health: HealthMetricsPost, user_id=Depends(get_id_from_toke
     user_service = UserService(session)
     user = await user_service.get_user_by_id(user_id)
     check_patient(user)
-    stmt = select(HealthMetrics).where(and_(HealthMetrics.patient_id == user_id,
-                                            HealthMetrics.date == datetime.date.today(),
-                                            HealthMetrics.day == health.day))
-    health_metrics: HealthMetrics = await session.scalar(stmt)
-    if not health_metrics:
-        health_metrics = HealthMetrics(**health.__dict__)
-        health_metrics.patient = user.patient
-        session.add(health_metrics)
-    else:
-        health_metrics.update(**health.__dict__)
+
+
+
+    health_metrics = HealthMetrics(**health.__dict__, date=datetime.datetime.now())
+    health_metrics.user = user
+    session.add(health_metrics)
+
     await session.commit()
+
+
+@router.get("/patient/health", status_code=201, response_model=List[HealthMetricsOut], response_description="Сохраняет данные о состоянии пациента утром или вечером")
+async def set_health(user_id: int, date: datetime.date, session: AsyncSession = SessionDep):
+    stmt = select(HealthMetrics).where(and_(HealthMetrics.user_id == user_id,
+                                            HealthMetrics.date >= date,
+                                            HealthMetrics.date < date + datetime.timedelta(days=1)))
+    health_metrics = await session.scalars(stmt)
+    return [HealthMetricsOut(**metrics.__dict__) for metrics in health_metrics.unique()]
+

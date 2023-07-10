@@ -83,7 +83,7 @@ async def generate_model():
                         surname="Абобус",
                         patronymic="Игоревич",
                         phone_number=f"+79009859434",
-                        password=get_password_hash(password),
+                        password=get_password_hash(1234),
                         role=UserRole.PATIENT
                         )
             patient = Patient()
@@ -97,7 +97,7 @@ async def generate_model():
                 await session.commit()
                 print("patient data")
                 print(patient.user.phone_number)
-                print(password)
+                print(1234)
                 print(create_access_token(user_patient, 43200).token)
                 print("doctor data")
                 print(user_doctor.phone_number)
