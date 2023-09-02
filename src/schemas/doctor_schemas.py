@@ -1,10 +1,8 @@
 import datetime
 from typing import List
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict
 
-from src.doctor.doctor_model import Appointment
-from src.patient.patient_schemas import AppointmentsOut
 
 
 def get_day_of_the_week(day: int):
@@ -34,6 +32,15 @@ class DoctorSetAppointment(BaseModel):
 #     date: datetime.datetime
 #     day_of_the_week: str
 
+class DoctorModel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    info: str
+    category: str
+    work_experience: int
+    specialization: List[str]
+    price: int
+    user_id: int
 
 class DoctorShort(BaseModel):
     id: int
@@ -54,19 +61,16 @@ class AppointmentById(AppointmentBasicOut):
     user_id: int
     anamnesis: str | None
 
+
 class Anamnesis(BaseModel):
     anamnesis: str
 
 
-
 class DayAppointmentOut(BaseModel):
     date: datetime.date
-    appointments: List[AppointmentsOut | AppointmentBasicOut]
+    appointments: List[AppointmentById | AppointmentBasicOut]
     day_of_the_week: str = None
-
-    def get_class_with_day_week(self):
-        self.day_of_the_week = get_day_of_the_week(self.date.weekday())
-        return self
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DoctorOut(DoctorShort):
@@ -76,14 +80,8 @@ class DoctorOut(DoctorShort):
     price: int
     day_appointments: List[DayAppointmentOut]
 
-    # @validator('day_of_the_week')
-    # def validate_day_of_the_week(cls, day_of_the_week, values):
-    #     date = values['date']
-    #     return cls.get_day_of_the_week(date.date().weekday())
-
 
 class PatientOut(BaseModel):
     id: int
     patient: str
     doctor: str
-

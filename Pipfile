@@ -16,6 +16,7 @@ passlib = {extras = ["bcrypt"], version = "*"}
 pytest = "*"
 pytest-asyncio = "*"
 uvicorn = "*"
+pydantic = "*"
 
 [dev-packages]
 

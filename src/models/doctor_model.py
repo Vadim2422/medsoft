@@ -1,11 +1,8 @@
-import asyncio
-from datetime import datetime
-from sqlalchemy import Column, BigInteger, String, TIMESTAMP, Enum, Integer, ARRAY, Date, ForeignKey, Time
-from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy import Column, BigInteger, String, TIMESTAMP, Integer, ARRAY, Date, ForeignKey
 from sqlalchemy.orm import relationship
 
-from src.database import Base, async_session_maker
-from src.user.user_role import UserRole
+from src.database import Base
+from src.schemas.doctor_schemas import DoctorModel
 
 
 class Doctor(Base):
@@ -20,6 +17,9 @@ class Doctor(Base):
     user_id = Column(ForeignKey("users.id"))
     user = relationship("User", back_populates="doctor", lazy="joined")
 
+    def to_model(self):
+        return DoctorModel.model_validate(self)
+
 
 class Appointment(Base):
     __tablename__ = "appointments"
@@ -28,8 +28,8 @@ class Appointment(Base):
     anamnesis = Column("anamnesis", String(1000))
     day_appointments_id = Column(ForeignKey("day_appointments.id"))
     day_appointments = relationship("DayAppointment", back_populates="appointments", lazy="joined")
-    patient_id = Column(ForeignKey("patients.id"))
-    patient = relationship("Patient", back_populates="appointments", lazy="joined")
+    doctor_id = Column(ForeignKey("doctors.id"))
+    doctor = relationship("Doctor", lazy="joined")
 
 
 class DayAppointment(Base):
@@ -39,5 +39,3 @@ class DayAppointment(Base):
     doctor_id = Column(ForeignKey("doctors.id"))
     doctor = relationship("Doctor", back_populates="day_appointments", lazy="joined")
     appointments = relationship("Appointment", back_populates="day_appointments", lazy="joined")
-
-

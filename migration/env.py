@@ -1,9 +1,6 @@
 from logging.config import fileConfig
 # from src.db import Base
-from src.user.user_model import *
-from src.user.user_role import UserRole
-from src.doctor.doctor_model import *
-from src.patient.patient_model import *
+from src.models.user_model import *
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from src.config import *

@@ -1,13 +1,21 @@
 import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from src.auth.auth import Token
-from src.user.user_role import UserRole
+from src.models.user_role import UserRole
+
+
+class Token(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    token: str
+    exp: datetime.datetime
+
+
+class TokenData(BaseModel):
+    username: str | None = None
 
 
 class UserBase(BaseModel):
-    """ Формирует тело ответа с деталями пользователя """
     name: str
     surname: str
     patronymic: str
@@ -16,6 +24,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    model_config = ConfigDict(from_attributes=True)
     password: str
 
 
@@ -25,9 +34,15 @@ class UserAuth(BaseModel):
 
 
 class UserOut(UserBase):
+    model_config = ConfigDict(from_attributes=True)
     registered_at: datetime.datetime
     role: UserRole
     id: int
+
+
+class UserModel(UserOut):
+    id: int
+    password: str
 
 
 class UserCreateOut(UserOut):

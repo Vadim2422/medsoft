@@ -5,11 +5,10 @@ import random
 
 from sqlalchemy import select, and_
 
-from src.auth.auth import get_password_hash, create_access_token
-from src.doctor.doctor_model import Doctor, DayAppointment, Appointment
-from src.patient.patient_model import Patient
-from src.user.user_model import User
-from src.user.user_role import UserRole
+from src.auth.auth import get_password_hash
+from src.models.doctor_model import Doctor, DayAppointment, Appointment
+from src.models.user_model import User
+from src.models.user_role import UserRole
 from src.database import async_session_maker
 
 session = async_session_maker()
@@ -25,12 +24,12 @@ async def generate_model():
         with open(f"dataset/data/{i}.json") as f:
             data = json.load(f)
         fio = data['fio'].split()
-        password = random.randint(1000, 9999).__str__()
+        password = (1234).__str__()
         user_doctor = User(
                     # id=i+2,
                     photo=data['photo'],
-                    name=fio[0],
-                    surname=fio[1],
+                    surname=fio[0],
+                    name=fio[1],
                     patronymic=fio[2],
                     phone_number=f"+79{random.randint(100000000, 999999999)}",
                     password=get_password_hash(password),
@@ -79,30 +78,22 @@ async def generate_model():
 
 
             user_patient = User(
-                        name="Владлен",
-                        surname="Абобус",
-                        patronymic="Игоревич",
+                        name="Иван",
+                        surname="Иванов",
+                        patronymic="Иванович",
                         phone_number=f"+79009859434",
                         password=get_password_hash(1234),
                         role=UserRole.PATIENT
                         )
-            patient = Patient()
-            patient.user = user_patient
-            appointment.patient = patient
-            session.add_all([user_patient, patient])
+            print("patient data")
+            print(1234)
 
 
-            if i == 0:
-                session.add(user_doctor)
-                await session.commit()
-                print("patient data")
-                print(patient.user.phone_number)
-                print(1234)
-                print(create_access_token(user_patient, 43200).token)
-                print("doctor data")
-                print(user_doctor.phone_number)
-                print(password)
-                print(create_access_token(user_doctor, 43200).token)
+
+            print("doctor data")
+        print(user_doctor.surname)
+        print(user_doctor.phone_number)
+        print(password)
         session.add_all([user_doctor, doctor])
     await session.commit()
     await session.close()
